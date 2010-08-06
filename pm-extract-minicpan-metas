@@ -19,11 +19,12 @@ class FooBar { # XXX sucky name (CPAN::Visit::Filtered ???)
    #use MooseX::PrivateSetters;
     use MooseX::StrictConstructor;
 
-    use Archive::Extract qw();
-    use Carp             qw();
-    use File::Find::Rule qw();
-    use File::Spec       qw();
-    use File::Temp       qw();
+    use Archive::Extract   qw();
+    use CPAN::DistnameInfo qw();
+    use Carp               qw();
+    use File::Find::Rule   qw();
+    use File::Spec         qw();
+    use File::Temp         qw();
     # CPAN::Mini
 
 =head1 CONSTRUCTOR
@@ -41,9 +42,8 @@ FooBar objects have the following attributes:
 
 =head2 action
 
-Once the archive has been unpacked, the coderef stored in action
-will be called. The subroutine will be passed an informational
-hashref. See L<build_info_hash> for details of its contents.
+Once the archive has been unpacked, the coderef stored in action will
+be called. The subroutine will be passed a CPAN::DistnameInfo object.
 
 This parameter is mandatory.
 
@@ -88,8 +88,7 @@ This coderef is called before any archive is unpacked. The intention
 is that this callback is used to filter out distributions you have no
 interest in.
 
-The subroutine will be passed an informational hashref. See
-L<build_info_hash> for details of its contents. Additionally, $_ will
+The subroutine will be passed a CPAN::DistnameInfo object and $_ will
 be set to the full path and filename of the file as stored in the
 CPAN::Mini mirror. The function should return a true value if you wish
 this archive to be processed further.
@@ -130,7 +129,23 @@ when no longer required.
           CLEANUP => 1
       );
 
+    # private
+
+    has qw(_distinfo is rw isa CPAN::DistnameInfo writer _set_distinfo);
+
 =head1 METHODS
+
+=head2 distinfo
+
+=cut
+
+    method distinfo(Str $archive) {
+        return $self->_distinfo
+          if defined $self->_distinfo
+            && $self->_distinfo->pathname eq $archive;
+
+        return $self->_set_distinfo(CPAN::DistnameInfo->new($archive));
+    }
 
 =head2 find_archives
 
@@ -139,11 +154,11 @@ when no longer required.
     method find_archives() {
         my $include_acme = $self->include_acme
           ?  sub { 1 }
-          :  sub { $_[0]->{distribution} !~ /^acme-/i };
+          :  sub { $_[0]->dist !~ /^acme-/i };
         my $filter = $self->filter;
 
         return grep {
-            my $info = $self->build_info_hash($_);
+            my $info = $self->distinfo($_);
             $include_acme->($info)  &&  $filter->($info)
         } File::Find::Rule->file->name($self->archive_types)->in($self->cpan_base);
     }
@@ -159,75 +174,8 @@ when no longer required.
             my $ae = Archive::Extract->new(archive => $archive);
             my $ok = $ae->extract( to => $dest );
 
-            $self->action->( $self->build_info_hash($archive) );
+            $self->action->( $self->distinfo($archive) );
         }
-    }
-
-=head2 build_info_hash(Str $archive
-
-=cut
-
-    method build_info_hash(Str $archive) {
-        my (undef, $path, $file) = File::Spec->splitpath($archive);
-        my $author = (grep {length} File::Spec->splitdir($path))[-1];
-        my ($dist, $version) = get_dist_and_ver($file);
-
-        my $info = {
-            archive_filename => $file,
-            author           => $author,
-            distribution     => $dist,
-            source_archive   => $archive,
-            unpack_dir       => $self->unpack_dir,
-            version          => $version,
-        };
-
-        # XXX sanity check
-        #(defined $info->{$_} && length $info->{$_}) || do { ::pp $info; }
-        #  for keys %$info;
-
-        return $info;
-    }
-
-=head1 SUBROUTINES
-
-=head2 get_dist_and_ver
-
-This utility subroutine takes a filename (C<< FooBar-0.12.tar.gz >>,
-for example) as input and does its best to parse it. It returns two
-values, the distribution name (C<< FooBar >>) and its version (C<<
-0.12 >>).
-
-The CPAN, being the free-for-all that it is, contains all manner of
-files that this subroutine will fail at parsing. It will, however,
-always try to obtain a distribution name rather than the version.
-
-As a guide to the sort of filenames that this function can parse, the
-following files are all parsed correctly.
-
-    Chart-EPS_graph-0.01d.tar.gz
-    FooBar-0.12.tar.gz
-    ikiwiki-plugin-syntax_0.24.tar.gz
-    Net-SNMPTrapd-0.03-w.tar.gz
-    Net-Telnet-Cisco-IOS-0.6beta.tar.gz
-    swd.tar.gz
-
-XXX statistics.
-
-=cut
-
-# XXX See CPAN::DistnameInfo
-
-    sub get_dist_and_ver {
-        my $archive = shift;
-        my $v;
-
-        for ($archive) {
-            s/\.[a-z.]*$//i;
-            $v = s/[_-]?([0-9.]+(?:[a-z]|alpha|beta|-w)?)$//
-               ? $1
-               : '';
-        }
-        return $archive, $v;
     }
 };
 
@@ -240,18 +188,3 @@ my $foo = FooBar->new(
 );
 
 pp $foo->visit_distributions;
-
-sub TESTS_FOR_get_dist_and_ver {
-    my %dists = (
-        'FBar-0.12.tar.gz'                    => ['FBar', '0.12'],
-        'ikiwiki-plugin-syntax_0.24.tar.gz'   => ['ikiwiki-plugin-syntax', '0.24'],
-        'swd.tar.gz'                          => ['swd', ''],
-        'Chart-EPS_graph-0.01d.tar.gz'        => ['Chart-EPS_graph', '0.01d'],
-        'Net-Telnet-Cisco-IOS-0.6beta.tar.gz' => ['Net-Telnet-Cisco-IOS', '0.6beta'],
-        'Net-SNMPTrapd-0.03-w.tar.gz'         => ['Net-SNMPTrapd', '0.03-w'],
-    );
-
-    while (my ($d, $e) = each %dists) {
-        #is_deeply [get_dist_and_ver($d)], $e, $d;
-    }
-}
