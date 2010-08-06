@@ -1,17 +1,12 @@
 #!/usr/local/bin/perl
 
-use 5.010;
+use 5.010; # XXX
+use strict; # XXX
+use warnings FATAL => 'all'; # XXX
+use Data::Dump 'pp'; # XXX
 
-use strict;
-use warnings FATAL => 'all';
-#use Carp;
-#use diagnostics;
+package FooBar;
 
-use Data::Dump 'pp';
-#use Data::Dumper; sub pp { print Dumper @_ }
-
-$|=1;
-###############################################################################
 use MooseX::Declare;
 use Moose::Util::TypeConstraints;
 
@@ -39,6 +34,8 @@ FooBar -- visit unpacked distributions in a filtered CPAN::Mini mirror
 =cut
 
 class FooBar { # XXX sucky name (CPAN::Visit::Filtered ???)
+    our $VERSION = '0.01';
+
    #use MooseX::PrivateSetters;
     use MooseX::StrictConstructor;
 
@@ -154,6 +151,7 @@ when no longer required.
 
     # private
 
+    # cache for CPAN::DI object
     has qw(_distinfo is rw isa CPAN::DistnameInfo writer _set_distinfo);
 
 =head1 METHODS
@@ -206,6 +204,8 @@ when no longer required.
         }
     }
 };
+
+package main;
 
 my $foo = FooBar->new(
     action => sub {
