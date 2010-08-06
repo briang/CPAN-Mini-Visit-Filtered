@@ -15,6 +15,29 @@ $|=1;
 use MooseX::Declare;
 use Moose::Util::TypeConstraints;
 
+=head1 NAME
+
+FooBar -- visit unpacked distributions in a filtered CPAN::Mini mirror
+
+=head1 SYNOPSIS
+
+    my $visitor = FooBar->new(
+        action => sub {
+            system qw(ls -l);
+            pp @_;
+            die "THE END";
+        },
+        filter => sub { /briang/i },
+    );
+
+    $visitor->visit_distributions;
+
+=head1 DESCRIPTION XXX
+
+=head1 RATIONALE XXX
+
+=cut
+
 class FooBar { # XXX sucky name (CPAN::Visit::Filtered ???)
    #use MooseX::PrivateSetters;
     use MooseX::StrictConstructor;
