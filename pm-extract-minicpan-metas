@@ -1,0 +1,257 @@
+#!/usr/local/bin/perl
+
+use 5.010;
+
+use strict;
+use warnings FATAL => 'all';
+#use Carp;
+#use diagnostics;
+
+use Data::Dump 'pp';
+#use Data::Dumper; sub pp { print Dumper @_ }
+
+$|=1;
+###############################################################################
+use MooseX::Declare;
+use Moose::Util::TypeConstraints;
+
+class FooBar {
+   #use MooseX::PrivateSetters;
+    use MooseX::StrictConstructor;
+
+    use Archive::Extract qw();
+    use Carp             qw();
+    use File::Find::Rule qw();
+    use File::Spec       qw();
+    use File::Temp       qw();
+    # CPAN::Mini
+
+=head1 CONSTRUCTOR
+
+new() returns a new FooBar object. Parameters to new() should be
+supplied as key=>value pairs. The following attributes are recognised.
+
+=head1 ATTRIBUTES
+
+Attributes of the FooBar class are all read-only: they can be set only
+when constructing an object. They all have getters, however, that can
+be used at any time, though its doubtful that you'll need to.
+
+FooBar objects have the following attributes:
+
+=head2 archive_types
+
+This is a regular expression that matches valid archives. The default
+value (C<< qr{\.(?:bz2|tar\.gz|tgz|zip)$} >> XXX check this) matches
+*.tar.gz, *.tgz, *.zip and *.zip.
+
+=cut
+
+    has qw(archive_types is ro),
+      default => sub { qr{\.(?:bz2|tar\.gz|tgz|zip)$} };
+
+=head2 callback
+
+Once the archive has been unpacked, the coderef stored in callback
+will be called. The subroutine will be passed an informational
+hashref. See L<build_info_hash> for details of its contents.
+
+This parameter is mandatory.
+
+=cut
+
+    has qw(callback is ro isa CodeRef required 1); # XXX sucky name
+
+=head2 cpan_base
+
+This is the base directory where the CPAN::Mini mirror is stored. It
+defaults to using the directory defined in your .minicpanrc file.
+
+=cut
+
+    has qw(cpan_base is ro isa Str required 1),
+      default => sub {
+          require CPAN::Mini;
+
+          my $config_file = CPAN::Mini->config_file({});
+          Carp::croak("CPAN::Mini config file not located: $!")
+            unless defined $config_file and -e $config_file;
+          my %config = CPAN::Mini->read_config({quiet=>1});
+          Carp::croak("You haven't defined 'cpan_base' and no 'local' option was found in $config_file")
+            unless defined $config{local};
+          return $config{local}
+      };
+
+=head2 filter
+
+This coderef is called before any archive is unpacked. The intention
+is that this callback is used to filter out distributions you have no
+interest in.
+
+The subroutine will be passed an informational hashref. See
+L<build_info_hash> for details of its contents. Additionally, $_ will
+be set to the full path and filename of the file as stored in the
+CPAN::Mini mirror. The function should return a true value if you wish
+this archive to be processed further.
+
+By default all archives will be included. (With the possible exception
+of Acme::*. See L<include_acme>.)
+
+=cut
+
+    has qw(filter is ro isa CodeRef),
+      default => sub { sub {1} };
+
+=head2 include_acme
+
+Set this parameter to a true value if you wish to process the modules
+from the Acme::* namespace. Traditionally, these modules are all
+"jokes", and you may not wish to process them
+
+By default, the Acme distributions will not be included.
+
+=cut
+
+    has qw(include_acme is ro isa Bool default 0);
+
+=head2 unpack_dir
+
+The directory where the distributions will be unpacked.
+
+By default, a temporary directory (as determined by
+File::Temp::tempdir) will be allocated for you, and will be deleted
+when no longer required.
+
+=cut
+
+    has qw(unpack_dir is ro isa Str),
+      default => File::Temp::tempdir(
+          File::Spec->catfile(File::Spec->tmpdir, "extract-$$-XXXXXXXX"), # XXX "extract" ???
+          CLEANUP => 1
+      );
+
+=head1 METHODS
+
+=head2 find_archives
+
+=cut
+
+    method find_archives() {
+        my $include_acme = $self->include_acme
+          ?  sub { 1 }
+          :  sub { $_[0]->{distribution} !~ /^acme-/i };
+        my $filter = $self->filter;
+
+        return grep {
+            my $info = $self->build_info_hash($_);
+            $include_acme->($info)  &&  $filter->($info)
+        } File::Find::Rule->file->name($self->archive_types)->in($self->cpan_base);
+    }
+
+=head2 visit_distributions
+
+=cut
+
+    method visit_distributions() {
+        my $dest = $self->unpack_dir;
+
+        for my $archive ($self->find_archives) {
+            my $ae = Archive::Extract->new(archive => $archive);
+            my $ok = $ae->extract( to => $dest );
+
+            $self->callback->( $self->build_info_hash($archive) );
+        }
+    }
+
+=head2 build_info_hash(Str $archive
+
+=cut
+
+    method build_info_hash(Str $archive) {
+        my (undef, $path, $file) = File::Spec->splitpath($archive);
+        my $author = (grep {length} File::Spec->splitdir($path))[-1];
+        my ($dist, $version) = get_dist_and_ver($file);
+
+        my $info = {
+            archive_filename => $file,
+            author           => $author,
+            distribution     => $dist,
+            source_archive   => $archive,
+            unpack_dir       => $self->unpack_dir,
+            version          => $version,
+        };
+
+        # XXX sanity check
+        #(defined $info->{$_} && length $info->{$_}) || do { ::pp $info; }
+        #  for keys %$info;
+
+        return $info;
+    }
+
+=head1 SUBROUTINES
+
+=head2 get_dist_and_ver
+
+This utility subroutine takes a filename (C<< FooBar-0.12.tar.gz >>,
+for example) as input and does its best to parse it. It returns two
+values, the distribution name (C<< FooBar >>) and its version (C<<
+0.12 >>).
+
+The CPAN, being the free-for-all that it is, contains all manner of
+files that this subroutine will fail at parsing. It will, however,
+always try to obtain a distribution name rather than the version.
+
+As a guide to the sort of filenames that this function can parse, the
+following files are all parsed correctly.
+
+    Chart-EPS_graph-0.01d.tar.gz
+    FooBar-0.12.tar.gz
+    ikiwiki-plugin-syntax_0.24.tar.gz
+    Net-SNMPTrapd-0.03-w.tar.gz
+    Net-Telnet-Cisco-IOS-0.6beta.tar.gz
+    swd.tar.gz
+
+XXX statistics.
+
+=cut
+
+# XXX See CPAN::DistnameInfo
+
+    sub get_dist_and_ver {
+        my $archive = shift;
+        my $v;
+
+        for ($archive) {
+            s/\.[a-z.]*$//i;
+            $v = s/[_-]?([0-9.]+(?:[a-z]|alpha|beta|-w)?)$//
+               ? $1
+               : '';
+        }
+        return $archive, $v;
+    }
+};
+
+my $foo = FooBar->new(
+    callback           => sub {
+        pp @_;
+        die "THE END";
+    },
+    filter => sub { /briang/i },
+);
+
+pp $foo->visit_distributions;
+
+sub TESTS_FOR_get_dist_and_ver {
+    my %dists = (
+        'FBar-0.12.tar.gz'                    => ['FBar', '0.12'],
+        'ikiwiki-plugin-syntax_0.24.tar.gz'   => ['ikiwiki-plugin-syntax', '0.24'],
+        'swd.tar.gz'                          => ['swd', ''],
+        'Chart-EPS_graph-0.01d.tar.gz'        => ['Chart-EPS_graph', '0.01d'],
+        'Net-Telnet-Cisco-IOS-0.6beta.tar.gz' => ['Net-Telnet-Cisco-IOS', '0.6beta'],
+        'Net-SNMPTrapd-0.03-w.tar.gz'         => ['Net-SNMPTrapd', '0.03-w'],
+    );
+
+    while (my ($d, $e) = each %dists) {
+        #is_deeply [get_dist_and_ver($d)], $e, $d;
+    }
+}

@@ -1,0 +1,14 @@
+*~
+*.bak
+
+blib/
+Build
+_build/
+cover_db/
+Makefile
+Makefile.PL
+MANIFEST
+MANIFEST.SKIP
+META.yml
+MooseX-PrivateSetters-*
+MYMETA.yml

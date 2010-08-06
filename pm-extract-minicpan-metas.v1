@@ -1,0 +1,116 @@
+#!/usr/local/bin/perl
+
+use 5.010;
+
+use strict;
+use warnings FATAL => 'all';
+#use Carp;
+#use diagnostics;
+
+use Data::Dump 'pp';
+#use Data::Dumper; sub pp { print Dumper @_ }
+
+$|=1;
+###############################################################################
+use Archive::Extract;
+use File::Find::Rule;
+use File::Spec;
+use File::Temp  qw();
+use List::Util  qw(first);
+use Time::HiRes qw(time);
+use YAML::Any   qw(LoadFile);
+
+use constant {
+    CPAN_MINI => '/mirrors/cpan/',
+    SQLITE_DB => 'cpan-meta.sqlite~',
+};
+
+BEGIN { unlink SQLITE_DB ; say SQLITE_DB, " deleted" }
+
+use ORLite {
+    package => 'DB',
+    file    => SQLITE_DB,
+    create  => sub {
+        my $dbh = shift;
+        $dbh->do(q(
+            CREATE TABLE meta (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                abstract        TEXT,
+                author_id       INTEGER REFERENCES authors(id),
+                generated_by    TEXT,
+                license         TEXT,
+                name            TEXT,
+                timestamp       TEXT,
+                version         TEXT
+            )
+        ));
+
+        $dbh->do(q(
+            CREATE TABLE authors (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                cpan_name TEXT UNIQUE NOT NULL,
+                name      TEXT
+            )
+        ));
+    },
+};
+
+run(@ARGV);
+
+sub run {
+    my @argv = @_;
+
+    my $problems   = 0;
+    my $start_time = time;
+
+    my $dest  = File::Temp::tempdir(
+        File::Spec->catfile(File::Spec->tmpdir, "extract-$$-XXXXXXXX"),
+        CLEANUP => 1
+    );
+    my $base  = File::Spec->catdir(CPAN_MINI, qw(authors id));
+    my @files = grep {
+        $_ !~ /CHECKSUMS$/
+    } File::Find::Rule->file->in($base);
+    @files = @files[80..199]; # XXX
+
+    for my $file (@files) {
+        my ($author, $archive) = $file =~ m{/([^/]+)/([^/]+)$};
+
+        my $ae = Archive::Extract->new(archive => $file);
+        my $ok = $ae->extract( to => $dest );
+
+        if ($ok) {
+            my ($meta_json, $meta_yaml);
+            for (@{$ae->files}) {
+                $meta_json = $_ if /META.json$/;
+                $meta_yaml = $_ if /META.yml$/;
+                last if $meta_json && $meta_yaml;
+            }
+            if ($meta_yaml) {
+                update_db_from(File::Spec->catfile($dest, $meta_yaml));
+            }
+            if ($meta_json) {
+                pp($meta_json, $meta_yaml);
+            }
+        }
+        else { $problems ++ }
+    }
+
+    my $elapsed = time - $start_time;
+    printf "Processed %d archives in %.2f seconds (%.2f s/archive) with %d problems\n",
+      scalar @files, $elapsed, $elapsed/@files, $problems;
+}
+
+sub update_db_from {
+    my $yaml_file = shift;
+
+    my $meta = LoadFile($yaml_file);
+
+    die "exit";
+}
+
+sub fetch_or_create_author {
+    my ($cpan_name, $name) = @_;
+
+    my @rs = DB::Author->select('where cpan_name = ?', $cpan_name);
+}
