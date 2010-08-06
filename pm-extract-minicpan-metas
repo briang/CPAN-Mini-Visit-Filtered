@@ -15,7 +15,7 @@ $|=1;
 use MooseX::Declare;
 use Moose::Util::TypeConstraints;
 
-class FooBar {
+class FooBar { # XXX sucky name (CPAN::Visit::Filtered ???)
    #use MooseX::PrivateSetters;
     use MooseX::StrictConstructor;
 
@@ -39,6 +39,18 @@ be used at any time, though its doubtful that you'll need to.
 
 FooBar objects have the following attributes:
 
+=head2 action
+
+Once the archive has been unpacked, the coderef stored in action
+will be called. The subroutine will be passed an informational
+hashref. See L<build_info_hash> for details of its contents.
+
+This parameter is mandatory.
+
+=cut
+
+    has qw(action is ro isa CodeRef required 1);
+
 =head2 archive_types
 
 This is a regular expression that matches valid archives. The default
@@ -49,18 +61,6 @@ value (C<< qr{\.(?:bz2|tar\.gz|tgz|zip)$} >> XXX check this) matches
 
     has qw(archive_types is ro),
       default => sub { qr{\.(?:bz2|tar\.gz|tgz|zip)$} };
-
-=head2 callback
-
-Once the archive has been unpacked, the coderef stored in callback
-will be called. The subroutine will be passed an informational
-hashref. See L<build_info_hash> for details of its contents.
-
-This parameter is mandatory.
-
-=cut
-
-    has qw(callback is ro isa CodeRef required 1); # XXX sucky name
 
 =head2 cpan_base
 
@@ -159,7 +159,7 @@ when no longer required.
             my $ae = Archive::Extract->new(archive => $archive);
             my $ok = $ae->extract( to => $dest );
 
-            $self->callback->( $self->build_info_hash($archive) );
+            $self->action->( $self->build_info_hash($archive) );
         }
     }
 
@@ -232,7 +232,7 @@ XXX statistics.
 };
 
 my $foo = FooBar->new(
-    callback           => sub {
+    action => sub {
         pp @_;
         die "THE END";
     },
