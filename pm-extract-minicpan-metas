@@ -174,13 +174,19 @@ when no longer required.
             my $ae = Archive::Extract->new(archive => $archive);
             my $ok = $ae->extract( to => $dest );
 
-            $self->action->( $self->distinfo($archive) );
+            my $info = $self->distinfo($archive);
+
+            chdir $self->unpack_dir;
+            chdir $info->distvname;
+
+            $self->action->($info);
         }
     }
 };
 
 my $foo = FooBar->new(
     action => sub {
+        system qw(ls -l);
         pp @_;
         die "THE END";
     },
