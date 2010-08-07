@@ -5,18 +5,18 @@ use strict; # XXX
 use warnings FATAL => 'all'; # XXX
 use Data::Dump 'pp'; # XXX
 
-package FooBar;
+package CPAN::Mini::Visit::Filtered;
 
 use MooseX::Declare;
 use Moose::Util::TypeConstraints;
 
 =head1 NAME
 
-FooBar -- visit unpacked distributions in a filtered CPAN::Mini mirror
+CPAN::Mini::Visit::Filtered -- visit unpacked distributions in a filtered CPAN::Mini mirror
 
 =head1 SYNOPSIS
 
-    my $visitor = FooBar->new(
+    my $visitor = CPAN::Mini::Visit::Filtered->new(
         action => sub {
             system qw(ls -l);
             pp @_;
@@ -33,7 +33,7 @@ FooBar -- visit unpacked distributions in a filtered CPAN::Mini mirror
 
 =cut
 
-class FooBar { # XXX sucky name (CPAN::Visit::Filtered ???)
+class CPAN::Mini::Visit::Filtered { # XXX sucky name (CPAN::Visit::Filtered ???)
     our $VERSION = '0.01';
 
    #use MooseX::PrivateSetters;
@@ -49,16 +49,16 @@ class FooBar { # XXX sucky name (CPAN::Visit::Filtered ???)
 
 =head1 CONSTRUCTOR
 
-new() returns a new FooBar object. Parameters to new() should be
+new() returns a new CPAN::Mini::Visit::Filtered object. Parameters to new() should be
 supplied as key=>value pairs. The following attributes are recognised.
 
 =head1 ATTRIBUTES
 
-Attributes of the FooBar class are all read-only: they can be set only
+Attributes of the CPAN::Mini::Visit::Filtered class are all read-only: they can be set only
 when constructing an object. They all have getters, however, that can
 be used at any time, though its doubtful that you'll need to.
 
-FooBar objects have the following attributes:
+CPAN::Mini::Visit::Filtered objects have the following attributes:
 
 =head2 action
 
@@ -207,7 +207,7 @@ when no longer required.
 
 package main;
 
-my $foo = FooBar->new(
+my $foo = CPAN::Mini::Visit::Filtered->new(
     action => sub {
         system qw(ls -l);
         pp @_;
