@@ -1,0 +1,43 @@
+0&&<<''; # this PGP-signed message is also valid perl
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+# CHECKSUMS file written on Fri Aug 21 00:26:29 2009 GMT by CPAN::Checksums (v2.00)
+$cksum = {
+  'MojoX-UserAgent-0.20.meta' => {
+    'md5' => '5fa54b3d004da3cfc3052710effdde2b',
+    'mtime' => '2009-08-19',
+    'sha256' => '5eea568539248198c9177206dc0fa669e0867db509f66c9937c80fccc7a3abdb',
+    'size' => '354'
+  },
+  'MojoX-UserAgent-0.20.tar.gz' => {
+    'md5' => '4ae6010134fcc2032a00506578f01f5f',
+    'md5-ungz' => 'b82b867213a5a8b2eb12ce5a109748cf',
+    'mtime' => '2009-08-19',
+    'sha256' => 'c15e3ef15ac32ee7dca36d3c0027b074a5e332afefba95ef350e9c0162f3c6f2',
+    'sha256-ungz' => 'ee70e8a5024c7af27aa681d90fdce2976f907c55b135da5a56dc7407d7408976',
+    'size' => '17565'
+  },
+  'MojoX-UserAgent-0.21.meta' => {
+    'md5' => '12db51d32203857c7a880e1a12054526',
+    'mtime' => '2009-08-20',
+    'sha256' => '490708c129328771c10734de7d9d6202aead32c0ff081564c25b01cdc7da0ba0',
+    'size' => '398'
+  },
+  'MojoX-UserAgent-0.21.tar.gz' => {
+    'md5' => '2e1f744137f647702e01b2346440306e',
+    'md5-ungz' => 'a41729d91d588cd1cb63049d2e793f31',
+    'mtime' => '2009-08-20',
+    'sha256' => 'a51149366ccb113319c6d4c7946e5e365dd2a7c18d4586cb8a300a84ced7f6a0',
+    'sha256-ungz' => 'ea0f726e2013c5fd8a4bd0ad98d2ba5786965bdda5dd8d647fee9051095b97d3',
+    'size' => '17690'
+  }
+};
+__END__
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFKjem1Mo2oZ0UPiewRAknhAJ9QiSSKeQCEwppWxKZ6TCqyHeHo3ACfSYmz
+Dom85+NM+GQmbvIfPwxAlbU=
+=7AR5
+-----END PGP SIGNATURE-----
