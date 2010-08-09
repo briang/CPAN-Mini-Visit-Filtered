@@ -1,14 +1,23 @@
+# generic #
+
+## editor files ##
 *~
 *.bak
 
+## toolchain leftovers ##
 blib/
 Build
 _build/
 cover_db/
 Makefile
-Makefile.PL
 MANIFEST
 MANIFEST.SKIP
 META.yml
-MooseX-PrivateSetters-*
 MYMETA.yml
+
+## build tool ##
+#Build.PL
+Makefile.PL
+
+# project specific #
+MooseX-PrivateSetters-*
