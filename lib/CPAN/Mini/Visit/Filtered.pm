@@ -1,10 +1,5 @@
 #!/usr/local/bin/perl
 
-use 5.010; # XXX
-use strict; # XXX
-use warnings FATAL => 'all'; # XXX
-use Data::Dump 'pp'; # XXX
-
 package CPAN::Mini::Visit::Filtered;
 
 use MooseX::Declare;
@@ -205,15 +200,4 @@ when no longer required.
     }
 };
 
-package main;
-
-my $foo = CPAN::Mini::Visit::Filtered->new(
-    action => sub {
-        system qw(ls -l);
-        pp @_;
-        die "THE END";
-    },
-    filter => sub { /briang/i },
-);
-
-pp $foo->visit_distributions;
+1;
