@@ -69,13 +69,13 @@ This parameter is mandatory.
 =head2 archive_types
 
 This is a regular expression that matches valid archives. The default
-value (C<< qr{\.(?:bz2|tar\.gz|tgz|zip)$} >> XXX check this) matches
-*.tar.gz, *.tgz, *.zip and *.zip.
+value matches C<< *.tar.gz >>, C<< *.tgz >>, C<< *.tar.bz2 >> and
+C<< *.zip >>.
 
 =cut
 
     has qw(archive_types is ro),
-      default => sub { qr{\.(?:bz2|tar\.gz|tgz|zip)$} };
+      default => sub { qr{\.(?:tar\.bz2|tar\.gz|tgz|zip)$} };
 
 =head2 cpan_base
 
