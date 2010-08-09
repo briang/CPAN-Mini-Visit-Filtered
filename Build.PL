@@ -6,18 +6,24 @@ require 5.00601;
 use Module::Build;
 
 my $builder = Module::Build->new(
-    build_requires     => { 'Test::More'    => '0',    },
-    configure_requires => { 'Module::Build' => '0',    },
+    build_requires   => {
+        'Test::More' => '0',
+    },
+    configure_requires  => {
+        'Module::Build' => '0',
+    },
     create_makefile_pl => 'traditional',
     create_readme      => 1,
     license            => 'perl',
     meta_merge         => {
         resources      => {
-            repository => 'http://github.com/briang/MooseX-PrivateSetters'
+            repository => 'http://github.com/briang/cpan-mini-visit-filtered',
         }
     },
-    module_name        => 'MooseX::PrivateSetters',
-    requires           => { 'Moose'         => '0.94', },
+    module_name => 'CPAN::Mini::Visit::Filtered',
+    requires    => {
+        'Moose' => '0',
+    },
 );
 
 $builder->create_build_script();
