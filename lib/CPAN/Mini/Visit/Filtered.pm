@@ -176,7 +176,9 @@ when no longer required.
         return grep {
             my $info = $self->distinfo($_);
             $include_acme->($info)  &&  $filter->($info)
-        } File::Find::Rule->file->name($self->archive_types)->in($self->cpan_base);
+        } File::Find::Rule->file
+          ->name($self->archive_types)
+          ->in( File::Spec->catdir($self->cpan_base, qw{authors id}) );
     }
 
 =head2 visit_distributions
