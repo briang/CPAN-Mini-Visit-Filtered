@@ -1,5 +1,3 @@
-#!/usr/local/bin/perl
-
 package CPAN::Mini::Visit::Filtered;
 
 use MooseX::Declare;
