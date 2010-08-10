@@ -201,3 +201,17 @@ when no longer required.
 };
 
 1;
+
+__END__
+
+# XXX Oh noes. They're all blank
+
+=head1 SEE ALSO
+
+=head1 AUTHOR
+
+=head1 BUGS
+
+=head1 COPYRIGHT & LICENSE
+
+=cut
