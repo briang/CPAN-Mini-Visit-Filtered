@@ -28,7 +28,7 @@ CPAN::Mini::Visit::Filtered -- visit unpacked distributions in a filtered CPAN::
 
 =cut
 
-class CPAN::Mini::Visit::Filtered { # XXX sucky name (CPAN::Visit::Filtered ???)
+class CPAN::Mini::Visit::Filtered {
     use MooseX::StrictConstructor;
 
     use Archive::Extract   qw();
@@ -137,7 +137,7 @@ when no longer required.
 
     has qw(unpack_dir is ro isa Str),
       default => File::Temp::tempdir(
-          File::Spec->catfile(File::Spec->tmpdir, "extract-$$-XXXXXXXX"), # XXX "extract" ???
+          File::Spec->catfile(File::Spec->tmpdir, "cmvf-$$-XXXXXXXX"),
           CLEANUP => 1
       );
 
