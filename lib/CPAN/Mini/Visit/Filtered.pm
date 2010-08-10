@@ -1,5 +1,7 @@
 package CPAN::Mini::Visit::Filtered;
 
+our $VERSION = '0.01';
+
 use MooseX::Declare;
 use Moose::Util::TypeConstraints;
 
@@ -27,9 +29,6 @@ CPAN::Mini::Visit::Filtered -- visit unpacked distributions in a filtered CPAN::
 =cut
 
 class CPAN::Mini::Visit::Filtered { # XXX sucky name (CPAN::Visit::Filtered ???)
-    our $VERSION = '0.01';
-
-   #use MooseX::PrivateSetters;
     use MooseX::StrictConstructor;
 
     use Archive::Extract   qw();
