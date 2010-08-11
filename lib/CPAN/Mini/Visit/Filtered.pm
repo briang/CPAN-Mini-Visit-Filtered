@@ -13,9 +13,7 @@ CPAN::Mini::Visit::Filtered -- visit unpacked distributions in a filtered CPAN::
 
     my $visitor = CPAN::Mini::Visit::Filtered->new(
         action => sub {
-            system qw(ls -l);
-            pp @_;
-            die "THE END";
+            # XXX put something here
         },
         filter => sub { /briang/i },
     );
