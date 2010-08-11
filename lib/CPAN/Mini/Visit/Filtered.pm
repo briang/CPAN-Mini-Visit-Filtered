@@ -30,8 +30,9 @@ class CPAN::Mini::Visit::Filtered {
     use MooseX::StrictConstructor;
 
     use Archive::Extract   qw();
-    use CPAN::DistnameInfo qw();
     use Carp               qw();
+    use CPAN::DistnameInfo qw();
+    use Cwd                qw();
     use File::Find::Rule   qw();
     use File::Spec         qw();
     use File::Temp         qw();
@@ -142,7 +143,8 @@ when no longer required.
     # private
 
     # cache for CPAN::DI object
-    has qw(_distinfo is rw isa CPAN::DistnameInfo writer _set_distinfo);
+    has qw(_distinfo    is rw isa CPAN::DistnameInfo writer _set_distinfo);
+    has qw(_initial_dir is ro isa Str), default => Cwd::getcwd;
 
 =head1 METHODS
 
@@ -185,12 +187,13 @@ when no longer required.
 
         for my $archive ($self->find_archives) {
             my $ae = Archive::Extract->new(archive => $archive);
-            my $ok = $ae->extract( to => $dest );
+            my $ok = $ae->extract( to => $dest ); # XXX and if it fails???
 
             my $info = $self->distinfo($archive);
 
-            chdir $self->unpack_dir;
-            chdir $info->distvname;
+            chdir $self->unpack_dir   or die $!; # XXX
+            chdir $info->distvname    or die $!;
+            chdir $self->_initial_dir or die $!;
 
             $self->action->($info);
         }
