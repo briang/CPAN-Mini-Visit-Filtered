@@ -7,7 +7,17 @@ use Module::Build;
 
 my $builder = Module::Build->new(
     build_requires   => {
-        'Test::More' => '0',
+        'Archive::Extract'             => '0',
+        'CPAN::DistnameInfo'           => '0',
+        'Carp'                         => '0',
+        'Cwd'                          => '0',
+        'File::Find::Rule'             => '0',
+        'File::Spec'                   => '0',
+        'File::Temp'                   => '0',
+        'Moose::Util::TypeConstraints' => '0',
+        'MooseX::Declare'              => '0',
+        'MooseX::StrictConstructor'    => '0',
+        'Test::More'                   => '0',
     },
     configure_requires  => {
         'Module::Build' => '0',
