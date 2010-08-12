@@ -17,7 +17,7 @@ my $builder = Module::Build->new(
     license            => 'perl',
     meta_merge         => {
         resources      => {
-            repository => 'http://github.com/briang/cpan-mini-visit-filtered',
+            repository => 'http://github.com/briang/CPAN-Mini-Visit-Filtered',
         }
     },
     module_name => 'CPAN::Mini::Visit::Filtered',
