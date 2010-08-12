@@ -7,7 +7,7 @@ use Moose::Util::TypeConstraints;
 
 =head1 NAME
 
-CPAN::Mini::Visit::Filtered -- visit unpacked distributions in a filtered CPAN::Mini mirror
+CPAN::Mini::Visit::Filtered - visit unpacked distributions in a filtered CPAN::Mini mirror
 
 =head1 SYNOPSIS
 
