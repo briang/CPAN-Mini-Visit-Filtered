@@ -1,6 +1,6 @@
 package CPAN::Mini::Visit::Filtered;
 
-our $VERSION = '0.01_01';
+our $VERSION = '0.01_02';
 
 use MooseX::Declare;
 use Moose::Util::TypeConstraints;

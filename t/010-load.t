@@ -12,7 +12,7 @@ use Test::More;
 plan tests => 1+ @mods;
 
 use_ok $_ for @mods;
-is $mods[0]->VERSION, '0.01_01', "Testing correct version";
+is $mods[0]->VERSION, '0.01_02', "Testing correct version";
 
 diag "testing $mods[0] ", $mods[0]->VERSION,
      " on perl $]";
