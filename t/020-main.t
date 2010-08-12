@@ -3,14 +3,13 @@ use warnings;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use Data::Dump 'pp'; # XXX
+#use Data::Dump 'pp'; # XXX
 
 my $MOD = "CPAN::Mini::Visit::Filtered";
 
 use Test::More tests => 11;
 
 use File::Spec;
-use Try::Tiny;
 
 eval "use $MOD; 1"
   or BAIL_OUT "'use $MOD' failed: $@";
