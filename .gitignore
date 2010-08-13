@@ -20,4 +20,4 @@ MYMETA.yml
 Makefile.PL
 
 # project specific #
-MooseX-PrivateSetters-*
+CPAN-Mini-Visit-Filtered-*
