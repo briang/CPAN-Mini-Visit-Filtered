@@ -7,7 +7,7 @@ use Data::Dump 'pp'; # XXX
 
 my $MOD = "CPAN::Mini::Visit::Filtered";
 
-use Test::More tests => 11;
+use Test::More tests => 4;
 
 use File::Spec;
 use Test::Exception;
