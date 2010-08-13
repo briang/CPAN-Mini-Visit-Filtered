@@ -3,7 +3,7 @@ use warnings;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use Data::Dump 'pp'; # XXX
+#use Data::Dump 'pp'; # XXX
 
 my $MOD = "CPAN::Mini::Visit::Filtered";
 
