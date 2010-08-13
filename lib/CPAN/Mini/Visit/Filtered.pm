@@ -75,22 +75,32 @@ C<< *.zip >>.
 
 =head2 cpan_base
 
-This is the base directory where the CPAN::Mini mirror is stored. It
-defaults to using the directory defined in your .minicpanrc file.
+This is the base directory where the CPAN::Mini mirror is stored.
+
+This paramater is mandatory
 
 =cut
 
     has qw(cpan_base is ro isa Str required 1),
-      default => sub {
-          require CPAN::Mini;
+      # default => sub {
+      #     require CPAN::Mini;
 
-          my $config_file = CPAN::Mini->config_file({});
-          Carp::croak("CPAN::Mini config file not located: $!")
-            unless defined $config_file and -e $config_file;
-          my %config = CPAN::Mini->read_config({quiet=>1});
-          Carp::croak("You haven't defined 'cpan_base' and no 'local' option was found in $config_file")
-            unless defined $config{local};
-          return $config{local}
+      #     my $config_file = CPAN::Mini->config_file({});
+      #     Carp::croak("CPAN::Mini config file not located: $!")
+      #       unless defined $config_file and -e $config_file;
+      #     my %config = CPAN::Mini->read_config({quiet=>1});
+      #     Carp::croak("You haven't defined 'cpan_base' and no 'local' option was found in $config_file")
+      #       unless defined $config{local};
+      #     return $config{local}
+      # },
+      trigger => sub {
+          my $self = shift;
+          my $base = $self->cpan_base;
+
+          Carp::croak("Attribute (cpan_base) does not exist: '$base'")
+            unless -e $base;
+          Carp::croak("Attribute (cpan_base) is not a directory: '$base'")
+            unless -d _;
       };
 
 =head2 filter

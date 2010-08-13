@@ -9,7 +9,6 @@ my $builder = Module::Build->new(
     build_requires   => {
         'Archive::Extract'             => '0',
         'CPAN::DistnameInfo'           => '0',
-        'CPAN::Mini'                   => '0',
         'Carp'                         => '0',
         'Cwd'                          => '0',
         'File::Find::Rule'             => '0',
