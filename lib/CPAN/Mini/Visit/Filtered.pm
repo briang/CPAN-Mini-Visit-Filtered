@@ -104,6 +104,15 @@ This paramater is mandatory
             unless -d _;
       };
 
+=head2 error XXX
+
+    XXX should do this always
+    $o->error->(CPAN::DistnameInfo $info, Str $error)
+
+=cut
+
+    has qw(error is ro isa CodeRef), default => sub { sub {} };
+
 =head2 filter
 
 This coderef is called before any archive is unpacked. The intention
