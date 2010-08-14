@@ -129,8 +129,7 @@ of Acme::*. See L<include_acme>.)
 
 =cut
 
-    has qw(filter is ro isa CodeRef),
-      default => sub { sub {1} };
+    has qw(filter is ro isa CodeRef), default => sub { sub {1} };
 
 =head2 include_acme
 
@@ -211,11 +210,13 @@ when no longer required.
 
             my $info = $self->distinfo($archive);
 
-            chdir $self->unpack_dir   or die $!; # XXX
-            chdir $info->distvname    or die $!;
-            chdir $self->_initial_dir or die $!;
-
-            $self->action->($info);
+            chdir $self->unpack_dir or die $!; # XXX
+            if (-d $info->distvname) {
+                chdir $info->distvname;
+                $self->action->($info, "Directory (", $info->distvname, ") does not exist");
+            }
+            else { $self->error->($info) }
+            chdir $self->_initial_dir or die $!; # XXX
         }
     }
 };
