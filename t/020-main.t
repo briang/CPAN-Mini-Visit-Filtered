@@ -27,7 +27,10 @@ throws_ok {
     CPAN::Mini::Visit::Filtered->new( cpan_base => $cpan_base );
 } qr/^Attribute \Q(action)\E is required/, "action is a required parameter of new()";
 
-{   my @expected = sort qw(
+{
+    my @expected = sort map {
+        File::Spec->catfile(split qr{/});
+    } qw(
         A/AC/ACALPINI/Lingua-IT-Conjugate-0.50.tar.bz2
         A/AC/ACALPINI/Lingua-IT-Hyphenate-0.14.zip
         A/AC/ACALPINI/Lingua-Stem-It-0.02.tgz
@@ -45,7 +48,9 @@ throws_ok {
         is_deeply \@archs, \@expected, "... as expected";
     }
 
-    @expected = sort @expected, "A/AC/ACALPINI/Acme-CPANAuthors-Italian-0.01.tar.gz";
+    @expected = sort map {
+        File::Spec->catfile(split qr{/});
+    } @expected, "A/AC/ACALPINI/Acme-CPANAuthors-Italian-0.01.tar.gz";
 
     {   my $foo = CPAN::Mini::Visit::Filtered->new(
             action       => sub {},
