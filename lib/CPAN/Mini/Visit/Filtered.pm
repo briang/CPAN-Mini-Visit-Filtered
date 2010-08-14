@@ -36,18 +36,19 @@ class CPAN::Mini::Visit::Filtered {
     use File::Find::Rule   qw();
     use File::Spec         qw();
     use File::Temp         qw();
-    # CPAN::Mini
 
 =head1 CONSTRUCTOR
 
-new() returns a new CPAN::Mini::Visit::Filtered object. Parameters to new() should be
-supplied as key=>value pairs. The following attributes are recognised.
+new() returns a new CPAN::Mini::Visit::Filtered object. Parameters to
+new() should be supplied as key=>value pairs. The following attributes
+are recognised.
 
 =head1 ATTRIBUTES
 
-Attributes of the CPAN::Mini::Visit::Filtered class are all read-only: they can be set only
-when constructing an object. They all have getters, however, that can
-be used at any time, though its doubtful that you'll need to.
+Attributes of the CPAN::Mini::Visit::Filtered class are all read-only:
+they can be set only when constructing an object. They all have
+getters, however, that can be used at any time, though its doubtful
+that you'll need to.
 
 CPAN::Mini::Visit::Filtered objects have the following attributes:
 
