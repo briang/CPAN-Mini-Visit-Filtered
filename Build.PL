@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-require 5.00601;
+require 5.008004;
 
 use Module::Build;
 
@@ -17,6 +17,7 @@ my $builder = Module::Build->new(
         'Moose::Util::TypeConstraints' => '0',
         'MooseX::Declare'              => '0',
         'MooseX::StrictConstructor'    => '0',
+        'perl'                         => '5.008',
         'Test::More'                   => '0',
     },
     configure_requires  => {
