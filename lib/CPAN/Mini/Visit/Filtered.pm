@@ -98,9 +98,9 @@ This paramater is mandatory
           my $self = shift;
           my $base = $self->cpan_base;
 
-          Carp::croak("Attribute (cpan_base) does not exist: '$base'")
+          Carp::croak(sprintf "cpan_base=>'%s' does not exist", $base)
             unless -e $base;
-          Carp::croak("Attribute (cpan_base) is not a directory: '$base'")
+          Carp::croak(sprintf "cpan_base=>'%s' is not a directory", $base)
             unless -d _;
       };
 
@@ -226,6 +226,14 @@ when no longer required.
 __END__
 
 # XXX Oh noes. They're all blank
+
+=head1 DIAGNOSTICS
+
+This library will throw the following exceptions:
+
+    Attribute (cpan_base) does not exist: '%s'
+
+blah blah blah
 
 =head1 SEE ALSO
 
