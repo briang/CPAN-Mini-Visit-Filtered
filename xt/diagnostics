@@ -1,0 +1,3 @@
+#!/bin/sh
+
+grep -R 'carp\|cluck\|confess\|croak\|die\|warn' lib
